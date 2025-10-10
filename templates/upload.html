@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Upload File - AWS S3 Storage{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="bi bi-upload"></i> Upload File to S3</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data" id="uploadForm">
+                    <div class="mb-4">
+                        <label for="fileInput" class="form-label">Select File</label>
+                        <input type="file" class="form-control" id="fileInput" name="file" required>
+                        <div class="form-text">
+                            Maximum file size: 100MB. 
+                            Allowed formats: txt, pdf, png, jpg, jpeg, gif, doc, docx, xls, xlsx, zip, rar
+                        </div>
+                    </div>
+
+                    <!-- File Preview -->
+                    <div id="filePreview" class="mb-3" style="display: none;">
+                        <div class="alert alert-info">
+                            <strong><i class="bi bi-file-earmark"></i> Selected File:</strong>
+                            <div class="mt-2">
+                                <strong>Name:</strong> <span id="fileName"></span><br>
+                                <strong>Size:</strong> <span id="fileSize"></span><br>
+                                <strong>Type:</strong> <span id="fileType"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Upload Progress -->
+                    <div id="uploadProgress" style="display: none;">
+                        <div class="progress mb-3">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                 role="progressbar" style="width: 0%" id="progressBar"></div>
+                        </div>
+                        <p class="text-center"><i class="bi bi-cloud-upload"></i> Uploading file to S3...</p>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg" id="uploadBtn">
+                            <i class="bi bi-cloud-upload"></i> Upload to S3
+                        </button>
+                        <a href="{{ url_for('list_files') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to Files
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Information Card -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5><i class="bi bi-info-circle"></i> Upload Information</h5>
+                <ul class="mb-0">
+                    <li>Files are securely stored in AWS S3</li>
+                    <li>Each file gets a unique timestamp-based name</li>
+                    <li>Original filename is preserved in metadata</li>
+                    <li>You can download or share files anytime</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const fileInput = document.getElementById('fileInput');
+    const filePreview = document.getElementById('filePreview');
+    const uploadForm = document.getElementById('uploadForm');
+    const uploadProgress = document.getElementById('uploadProgress');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const progressBar = document.getElementById('progressBar');
+
+    // File selection preview
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('fileSize').textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+            document.getElementById('fileType').textContent = file.type || 'Unknown';
+            filePreview.style.display = 'block';
+
+            // Check file size
+            if (file.size > 100 * 1024 * 1024) {
+                alert('File size exceeds 100MB limit!');
+                fileInput.value = '';
+                filePreview.style.display = 'none';
+            }
+        }
+    });
+
+    // Form submission with progress simulation
+    uploadForm.addEventListener('submit', function(e) {
+        uploadBtn.disabled = true;
+        uploadProgress.style.display = 'block';
+        
+        // Simulate progress (actual upload happens on backend)
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += 10;
+            progressBar.style.width = progress + '%';
+            if (progress >= 90) {
+                clearInterval(interval);
+            }
+        }, 200);
+    });
+</script>
+{% endblock %}
