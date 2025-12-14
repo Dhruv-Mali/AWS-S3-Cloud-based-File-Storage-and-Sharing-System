@@ -49,3 +49,6 @@ instance/
 
 # Logs
 *.log
+
+# Uploads folder (local storage)
+uploads/
